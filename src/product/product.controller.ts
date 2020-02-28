@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Put, Delete, Res, HttpStatus, Body, Param, NotFoundException } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Res, HttpStatus, Body, Param, NotFoundException, Query } from '@nestjs/common';
 import { ProductService } from './product.service';
 import { CreateProductDTO } from './dto/product.dto';
 import { Product } from './interfaces/product.interface';
@@ -20,8 +20,8 @@ export class ProductController {
     @Get('/:id')
     async getProduct(@Res() res, @Param('id') id: String): Promise<Product> {
         const product = await this.productServices.getProduct(id);
-        if (!product) //throw new NotFoundException('Product Not Fiend');
-            return res.status(HttpStatus.OK).json({ message: `Product Not Fiend`, product });
+        if (!product) throw new NotFoundException('Product Does Not Exists');
+        //return res.status(HttpStatus.OK).json({ message: `Product Not Fiend`, product });
         else
             return res.status(HttpStatus.OK).json({ message: `Product ${product._id}`, product });
     }
@@ -33,6 +33,21 @@ export class ProductController {
             return res.status(HttpStatus.OK).json({ message: 'Product Success', product })
         else
             return res.status(HttpStatus.OK).json({ message: 'Product Error', product })
+    }
+
+    @Delete('/delete')
+    async deleteProduct(@Res() res, @Query('id') id) {
+        const product = await this.productServices.deleteProduct(id);
+        if (!product) throw new NotFoundException('Product Does Not Exists');
+        return res.status(HttpStatus.OK).json({ message: 'Product Delete Success', product })
+    }
+
+    @Put('/update/')
+    async updateProduct(@Res() res, @Query('id') id: String, @Body() createProductDTO: CreateProductDTO) {
+        const product = await this.productServices.updateProduct(id, createProductDTO);
+        if (!product) throw new NotFoundException('Product Does Not Exists');
+        else
+            return res.status(HttpStatus.OK).json({ message: 'Product Update Success', product })
     }
 
 }
